@@ -1,0 +1,15 @@
+# L1-FIXTURE: no providers, resources, or remote backend.
+variable "participant_label" {
+  description = "Non-secret label used by this cloud-free learning fixture."
+  type        = string
+  default     = "actions-learner"
+}
+
+locals {
+  greeting = "Hello, ${var.participant_label}!"
+}
+
+output "greeting" {
+  description = "Example output only; this lab never plans or applies."
+  value       = local.greeting
+}

@@ -1,0 +1,61 @@
+# L1-ENVIRONMENT: copy only after configuring production at README checkpoint 8.
+name: L1 - Environment gate
+run-name: L1 gate - ${{ github.ref_name }}
+
+on:
+  workflow_dispatch:
+    inputs:
+      note:
+        description: Optional non-secret approval note; displayed as data.
+        type: string
+        required: false
+        default: approve-learning-only
+
+permissions:
+  contents: read
+
+defaults:
+  run:
+    shell: bash
+
+jobs:
+  guard:
+    name: L1 require manual main
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    steps:
+      - name: Reject non-main or non-manual execution
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_REF: ${{ github.ref }}
+        run: |
+          if [[ "$EVENT_NAME" != 'workflow_dispatch' || "$EVENT_REF" != 'refs/heads/main' ]]; then
+            printf '%s\n' 'This demonstration requires Run workflow on main.' >&2
+            exit 1
+          fi
+          printf '%s\n' 'Verified manual dispatch on main; no cloud access.'
+
+  approved_message:
+    name: L1 approved cloud-free message
+    needs: guard
+    if: ${{ github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/main' }}
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    environment:
+      name: production
+    steps:
+      - name: Record approval without deploying resources
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          EVENT_REF: ${{ github.ref }}
+          EVENT_SHA: ${{ github.sha }}
+          RUN_NOTE: ${{ inputs.note || '' }}
+        run: |
+          printf 'Event: %s\nRef: %s\nCommit: %s\n' "$EVENT_NAME" "$EVENT_REF" "$EVENT_SHA"
+          printf 'Note (escaped for display only): %q\n' "$RUN_NOTE"
+          printf '%s\n' 'Approval received. No Azure login, plan, apply, or resource operation ran.'
+          {
+            printf '## L1 cloud-free approval complete\n\n'
+            printf -- '- Event: `%s`\n- Ref: `%s`\n- Commit: `%s`\n' "$EVENT_NAME" "$EVENT_REF" "$EVENT_SHA"
+            printf '\nThe production environment gate released this message-only job. No infrastructure was deployed.\n'
+          } >> "$GITHUB_STEP_SUMMARY"

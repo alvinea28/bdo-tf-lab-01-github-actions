@@ -1,0 +1,20 @@
+# L1-AUTO-EVENTS: replace only on: and its children; stop before permissions:.
+on:
+  workflow_dispatch:
+    inputs:
+      note:
+        description: Optional non-secret note; displayed as data.
+        type: string
+        required: false
+        default: manual-baseline
+  push:
+    branches:
+      - main
+      - 'feature/**'
+  pull_request:
+    branches:
+      - main
+    types:
+      - opened
+      - synchronize
+      - reopened

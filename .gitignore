@@ -1,0 +1,45 @@
+# Terraform caches, state, saved plans, and local overrides are not source.
+.terraform/
+*.tfstate
+*.tfstate.*
+*.tfplan
+*.tfplan.*
+tfplan
+plan.out
+plan.json
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+*.tfvars
+*.tfvars.json
+!*.example.tfvars
+!*.example.tfvars.json
+
+# Never put credentials or secrets in this public learning repository.
+.terraformrc
+terraform.rc
+*.tfrc
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+credentials*
+secrets*
+
+# Local tools and disposable caches are not workshop deliverables.
+.tools/
+.cache/
+node_modules/
+*.log
+*.tmp
+.DS_Store
+Thumbs.db
+
+# A provider lock file is source when a lab actually uses providers.
+# Do not ignore .terraform.lock.hcl; this provider-free lab does not need one.
